@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Своя игра — Культура и цивилизации</title>
+  <style>
+    /* Все стили остаются такими же */
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+    :root {
+      --primary-glow: #ffd700;
+      --secondary-glow: #4a9eff;
+      --bg-dark: #000041ff;
+      --bg-mid: #000c8cff;
+      --bg-light: #02046eff;
+      --text-light: #fff;
+      --text-dim: #b0d4ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, var(--bg-light) 0%, var(--bg-mid) 50%, var(--bg-dark) 100%);
+      color: var(--text-light);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      overflow-x: hidden;
+      position: relative;
+      padding: 20px;
+    }
+    .bg-animation { position: absolute; inset: 0; overflow: hidden; z-index: 0; opacity: 0.25; }
+    .bg-symbol {
+      position: absolute;
+      font-size: 2rem;
+      color: var(--primary-glow);
+      font-weight: 300;
+      animation: floatSymbol 15s infinite linear;
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+      user-select: none;
+    }
+    @keyframes floatSymbol {
+      0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+      5% { opacity: 0; }
+      15% { opacity: 1; }
+      85% { opacity: 1; }
+      95% { opacity: 0; }
+      100% { transform: translateY(-20vh) rotate(360deg); opacity: 0; }
+    }
+    .screen {
+      text-align: center;
+      z-index: 10;
+      position: relative;
+      animation: fadeIn 0.8s ease;
+      max-width: 1200px;
+      width: 100%;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .logo-container { margin-bottom: 2em; }
+    .title {
+      font-size: 3.5rem;
+      font-weight: 700;
+      color: var(--primary-glow);
+      margin: 0;
+      letter-spacing: 12px;
+      text-transform: uppercase;
+      text-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+    }
+    .subtitle {
+      font-size: 1.1rem;
+      color: #e4e000ff;
+      margin-top: 1em;
+      font-weight: 300;
+      letter-spacing: 2px;
+    }
+    .settings-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(74, 158, 255, 0.2);
+      border: 1px solid rgba(74, 158, 255, 0.4);
+      color: var(--primary-glow);
+      padding: 0.8em 1.5em;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+      z-index: 20;
+    }
+    .settings-btn:hover {
+      background: rgba(74, 158, 255, 0.3);
+      transform: translateY(-2px);
+    }
+    .teams {
+      margin: 2em 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2em;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .team-box {
+      background: rgba(74, 158, 255, 0.08);
+      border: 1px solid rgba(74, 158, 255, 0.3);
+      border-radius: 8px;
+      padding: 2em 1.5em;
+      transition: all 0.3s ease;
+    }
+    .team-box:hover {
+      background: rgba(74, 158, 255, 0.12);
+      border-color: rgba(74, 158, 255, 0.5);
+      transform: translateY(-3px);
+    }
+    .team-label {
+      font-size: 0.9rem;
+      color: var(--primary-glow);
+      margin-bottom: 1em;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    input, select {
+      padding: 0.9em 1.2em;
+      border-radius: 6px;
+      border: 1px solid rgba(74, 158, 255, 0.4);
+      outline: none;
+      background: rgba(10, 37, 64, 0.6);
+      color: var(--text-light);
+      font-size: 1rem;
+      width: 100%;
+      text-align: center;
+      transition: all 0.3s ease;
+      font-weight: 300;
+    }
+    input::placeholder { color: rgba(255, 255, 255, 0.4); }
+    input:focus, select:focus {
+      border-color: var(--secondary-glow);
+      background: rgba(10, 37, 64, 0.8);
+      box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.1);
+    }
+    input:disabled { opacity: 0.5; cursor: not-allowed; }
+    .buttons { margin-top: 2em; }
+    .big-btn {
+      background: var(--secondary-glow);
+      color: var(--text-light);
+      border: none;
+      padding: 1em 3em;
+      font-size: 1.1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin: 0.5em;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 15px rgba(74, 158, 255, 0.3);
+    }
+    .big-btn:hover {
+      background: #3a8eef;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(74, 158, 255, 0.4);
+    }
+    .hint {
+      font-size: 0.95rem;
+      color: var(--text-dim);
+      margin-top: 2em;
+      font-weight: 300;
+    }
+    .hidden { display: none !important; }
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.3s ease;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+    }
+    .modal.hidden { opacity: 0; pointer-events: none; }
+    .modal-content {
+      background: linear-gradient(135deg, #01047e 0%, #020a5f 100%);
+      border: 1px solid rgba(255, 215, 0, 0.4);
+      border-radius: 12px;
+      padding: 2em 3em;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      animation: modalAppear 0.4s ease;
+      min-width: 400px;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    @keyframes modalAppear {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .modal-content h2 {
+      font-size: 1.8rem;
+      color: var(--primary-glow);
+      margin-bottom: 1em;
+      font-weight: 400;
+      letter-spacing: 2px;
+    }
+    .settings-group { margin: 1.5em 0; text-align: left; }
+    .settings-group label { display: block; color: var(--text-dim); margin-bottom: 0.5em; font-size: 0.9rem; }
+    .coin {
+      width: 140px;
+      height: 140px;
+      position: relative;
+      margin: 2em auto;
+      transform-style: preserve-3d;
+      transition: transform 2.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+    .face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 400;
+      font-size: 1.2rem;
+      backface-visibility: hidden;
+      background-size: cover;
+      background-position: center;
+      box-shadow: 0 8px 30px rgba(74, 158, 255, 0.4);
+      border: 3px solid rgba(255, 215, 0, 0.4);
+      color: var(--text-light);
+    }
+    .heads { background-image: url('https://media.discordapp.net/attachments/1344289233447419926/1427219340033265794/coin_heads.png?ex=68ee1117&is=68ecbf97&hm=8ba24400fb08c9927b09987c0daafa199b727f2e357cdd30196ca0067460c9c9&=&format=webp&quality=lossless&width=640&height=640'); }
+    .tails { transform: rotateY(180deg); background-image: url('https://media.discordapp.net/attachments/1344289233447419926/1427219340574461993/coin_tails.png?ex=68ee1117&is=68ecbf97&hm=08414785dee1287ab484dd629ea1f50e1858f0fb2f212a1c9f175a67f4ab5244&=&format=webp&quality=lossless&width=640&height=640'); }
+    .result {
+      font-size: 1.4rem;
+      color: var(--primary-glow);
+      margin-top: 1.5em;
+      font-weight: 400;
+      animation: resultAppear 0.4s ease;
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+    }
+    @keyframes resultAppear {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .small-btn {
+      background: transparent;
+      color: var(--secondary-glow);
+      border: 1px solid var(--secondary-glow);
+      padding: 0.8em 2.5em;
+      font-size: 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 400;
+      text-transform: uppercase;
+      margin: 0.5em;
+      letter-spacing: 1px;
+    }
+    .small-btn:hover { background: var(--secondary-glow); color: var(--text-light); transform: translateY(-2px); }
+    header {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--primary-glow);
+      letter-spacing: 8px;
+      text-transform: uppercase;
+      text-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5em;
+      flex-wrap: wrap;
+      gap: 1em;
+    }
+    header h1 { flex: 1; text-align: center; margin: 0; font-size: 2.8rem; min-width: 200px; }
+    #turn-indicator {
+      color: var(--primary-glow);
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+    }
+    .team {
+      font-size: 1.1rem;
+      text-align: center;
+      color: var(--text-light);
+      background: rgba(74, 158, 255, 0.1);
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: 1px solid rgba(74, 158, 255, 0.3);
+      box-shadow: 0 0 10px rgba(74, 158, 255, 0.2);
+      min-width: 180px;
+    }
+    .team-name { color: var(--primary-glow); font-weight: 600; margin-bottom: 4px; }
+    .team-score-wrapper { display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .team-score { font-size: 1.3rem; font-weight: 700; }
+    .score-btn {
+      background: rgba(74, 158, 255, 0.3);
+      border: 1px solid rgba(74, 158, 255, 0.5);
+      color: var(--text-light);
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 22px;
+      transition: all 0.2s ease;
+      padding: 0;
+    }
+    .score-btn:hover { background: var(--secondary-glow); transform: scale(1.1); }
+    .team-lifelines { font-size: 0.85rem; color: var(--text-dim); margin-top: 5px; }
+    #board { display: flex; flex-direction: column; gap: 12px; z-index: 10; margin-bottom: 2em; }
+    .category-title {
+      background: rgba(74, 158, 255, 0.08);
+      border: 1px solid rgba(74, 158, 255, 0.3);
+      border-radius: 8px;
+      padding: 8px;
+      font-size: 0.95rem;
+      color: var(--primary-glow);
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 500;
+      line-height: 1.2;
+    }
+    .value-btn {
+      background: rgba(10, 37, 64, 0.6);
+      border: 1px solid rgba(74, 158, 255, 0.4);
+      color: var(--text-light);
+      font-size: 1.1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+      padding: 0.8em;
+      font-weight: 400;
+    }
+    .value-btn:hover {
+      background: var(--secondary-glow);
+      border-color: var(--secondary-glow);
+      transform: translateY(-3px);
+      box-shadow: 0 0 10px rgba(74, 158, 255, 0.4);
+    }
+    .value-btn.used {
+      background: rgba(255, 255, 255, 0.1);
+      color: #777;
+      pointer-events: none;
+      box-shadow: none;
+      transform: none;
+    }
+    #question-box {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      text-align: center;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+      padding: 20px;
+    }
+    #timer-display {
+      position: absolute;
+      top: 30px;
+      font-size: 3rem;
+      color: var(--primary-glow);
+      font-weight: 700;
+      text-shadow: 0 0 15px rgba(255,215,0,0.5);
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    #timer-display.low-time { color: #ff4d4d; animation: pulse 1s infinite; }
+    #media-container {
+      max-width: 90%;
+      margin: 0 auto 15px;
+    }
+    #media-container img {
+      max-width: 100%;
+      max-height: 30vh;
+      border-radius: 8px;
+      border: 2px solid var(--primary-glow);
+    }
+     #media-container audio {
+      width: 100%;
+      max-width: 400px;
+      margin-top: 10px;
+    }
+    #question {
+      font-size: 1.8rem;
+      margin-top: 10px;
+      margin-bottom: 20px;
+      color: var(--primary-glow);
+      max-width: 800px;
+      padding: 0 20px;
+    }
+    .options {
+      display: grid;
+      grid-template-columns: repeat(2,1fr);
+      gap: 15px;
+      width: 80%;
+      max-width: 700px;
+      margin: 0 auto 20px auto;
+    }
+    .option-btn {
+      background: rgba(10,37,64,0.6);
+      border: 1px solid rgba(74,158,255,0.4);
+      color: var(--text-light);
+      border-radius: 6px;
+      padding: 1em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+    }
+    .option-btn:hover { background: var(--secondary-glow); transform: translateY(-2px); }
+    .option-btn.fifty-fifty-hidden { visibility: hidden; pointer-events: none; opacity: 0.3; }
+    #score { margin-top: 1em; color: var(--primary-glow); font-size: 1.2rem; }
+    #final-result {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(0,0,0,0.9);
+      color: var(--primary-glow);
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      font-size: 2rem;
+      text-shadow: 0 0 15px rgba(255,215,0,0.6);
+    }
+    .game-controls { margin-top: 1em; display: flex; gap: 1em; justify-content: center; flex-wrap: wrap; }
+    .control-btn {
+      background: rgba(74, 158, 255, 0.2);
+      border: 1px solid rgba(74, 158, 255, 0.4);
+      color: var(--primary-glow);
+      padding: 0.6em 1.2em;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+    }
+    .control-btn:hover { background: rgba(74, 158, 255, 0.3); transform: translateY(-2px); }
+    .control-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .confetti-piece {
+      position: fixed;
+      width: 10px;
+      height: 20px;
+      z-index: 9999;
+      top: -20px;
+      opacity: 0;
+      animation: confetti-fall 5s linear forwards;
+    }
+    @keyframes confetti-fall {
+        0% { transform: translateY(0vh) rotate(0deg); opacity: 1; }
+        100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-animation" id="bgAnimation"></div>
+  <div id="start-screen" class="screen">
+    <button class="settings-btn" onclick="showSettings()">⚙️ Настройки</button>
+    <div class="logo-container">
+      <h1 class="title">СВОЯ ИГРА</h1>
+      <p class="subtitle">Культура и цивилизации</p>
+    </div>
+    <div class="teams">
+      <div class="team-box">
+        <div class="team-label">Команда 1</div>
+        <input id="teamA" type="text" placeholder="Введите название команды" />
+      </div>
+      <div class="team-box">
+        <div class="team-label">Команда 2</div>
+        <input id="teamB" type="text" placeholder="Введите название команды" />
+      </div>
+    </div>
+    <div class="buttons">
+      <button id="confirmBtn" class="big-btn">Подтвердить</button>
+      <button id="playBtn" class="big-btn hidden">Бросить жребий</button>
+    </div>
+    <p class="hint">Введите названия команд для начала игры</p>
+  </div>
+  <div id="game-screen" class="screen hidden">
+    <header>
+      <div class="team" id="team1">
+        <div class="team-name" id="team1-name"></div>
+        <div class="team-score-wrapper">
+            <button class="score-btn" onclick="adjustScore('team1', -100)">-</button>
+            <div class="team-score" id="team1-score">0</div>
+            <button class="score-btn" onclick="adjustScore('team1', 100)">+</button>
+        </div>
+        <div class="team-lifelines">50/50: <span id="team1-lifelines">3</span></div>
+      </div>
+      <h1>СВОЯ ИГРА</h1>
+      <div class="team" id="team2">
+        <div class="team-name" id="team2-name"></div>
+        <div class="team-score-wrapper">
+            <button class="score-btn" onclick="adjustScore('team2', -100)">-</button>
+            <div class="team-score" id="team2-score">0</div>
+            <button class="score-btn" onclick="adjustScore('team2', 100)">+</button>
+        </div>
+        <div class="team-lifelines">50/50: <span id="team2-lifelines">3</span></div>
+      </div>
+    </header>
+    <div id="turn-indicator"></div>
+    <div id="board"></div>
+    <div class="game-controls">
+      <button class="control-btn" onclick="showSettings()">⚙️ Настройки</button>
+      <button class="control-btn" onclick="resetGame()">🔄 Новая игра</button>
+    </div>
+  </div>
+  <div class="modal hidden" id="settingsModal">
+    <div class="modal-content">
+      <h2>⚙️ Настройки игры</h2>
+      <div class="settings-group">
+        <label>Количество подсказок 50/50 на команду:</label>
+        <select id="lifelines-count">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3" selected>3</option>
+          <option value="5">5</option>
+          <option value="unlimited">Неограниченно</option>
+        </select>
+      </div>
+      <div class="settings-group">
+        <label>Время на ответ (секунд):</label>
+        <select id="answer-time">
+          <option value="15">15</option>
+          <option value="30" selected>30</option>
+          <option value="45">45</option>
+          <option value="60">60</option>
+          <option value="unlimited">Без ограничений</option>
+        </select>
+      </div>
+      <div class="settings-group">
+        <label>Штраф за неправильный ответ:</label>
+        <select id="penalty-mode">
+          <option value="none" selected>Без штрафа</option>
+          <option value="half">Половина стоимости</option>
+          <option value="full">Полная стоимость</option>
+        </select>
+      </div>
+      <button class="small-btn" onclick="saveSettings()">Сохранить</button>
+      <button class="small-btn" onclick="closeSettings()">Закрыть</button>
+    </div>
+  </div>
+  <div class="modal hidden" id="coinModal">
+    <div class="modal-content">
+      <h2>Определяем первый ход</h2>
+      <div class="coin" id="coin">
+        <div class="face heads"></div>
+        <div class="face tails"></div>
+      </div>
+      <div class="result" id="coinResult"></div>
+      <button id="coinOk" class="small-btn hidden">Продолжить</button>
+    </div>
+  </div>
+  <div id="question-box">
+    <div id="timer-display"></div>
+    <div id="media-container"></div>
+    <div id="question"></div>
+    <div class="options" id="options"></div>
+    <button id="fifty-fifty-btn" class="small-btn">50/50</button>
+    <div id="score"></div>
+  </div>
+  <div id="final-result"></div>
+
+  <script>
+    // Весь JavaScript остается таким же, как в коде выше
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    function playSound(frequency, duration, type = 'sine') {
+      try {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        oscillator.frequency.value = frequency;
+        oscillator.type = type;
+        gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + duration);
+      } catch(e) { console.warn("Web Audio API not supported."); }
+    }
+    const playClick = () => playSound(600, 0.08, 'triangle');
+    const playSuccess = () => { playSound(523, 0.1); setTimeout(() => playSound(783, 0.15), 120); };
+    const playError = () => playSound(200, 0.2, 'square');
+    const bgAnimation = document.getElementById('bgAnimation');
+    const culturalSymbols = ['🏛️','📜','🏺','🎭','🗿','☥','☯️','⚜️','✡️','☪️','🕉️','☮️','✒️','🎨','🎼'];
+    for (let i = 0; i < 25; i++) {
+      const symbol = document.createElement('div');
+      symbol.className = 'bg-symbol';
+      symbol.textContent = culturalSymbols[Math.floor(Math.random() * culturalSymbols.length)];
+      symbol.style.left = (Math.random() * 95) + '%';
+      symbol.style.animationDuration = (Math.random() * 10 + 10) + 's';
+      symbol.style.fontSize = (Math.random() * 1.8 + 0.9) + 'rem';
+      symbol.style.animationDelay = -(Math.random() * 15) + 's';
+      bgAnimation.appendChild(symbol);
+    }
+    function shuffleArray(array) {
+      const newArray = [...array];
+      for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+      }
+      return newArray;
+    }
+    function triggerConfetti() {
+        const colors = ['#ffd700', '#4a9eff', '#ff4d4d', '#4dd0e1', '#f48fb1'];
+        for (let i = 0; i < 150; i++) {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti-piece';
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDuration = (Math.random() * 3 + 4) + 's';
+            confetti.style.animationDelay = Math.random() * 3 + 's';
+            confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+            document.body.appendChild(confetti);
+            confetti.addEventListener('animationend', () => {
+                confetti.remove();
+            });
+        }
+    }
+    const categories = [
+      {
+        id: "Античность",
+        questions: [
+          { value: 200, question: "Какая цивилизация построила Парфенон в Афинах?", correct: "Древняя Греция", options: ["Древний Рим", "Древняя Греция", "Древний Египет", "Месопотамия"] },
+          { value: 400, question: "Кто был богом грома и молний в древнегреческой мифологии?", correct: "Зевс", options: ["Аполлон", "Арес", "Зевс", "Посейдон"] },
+          { value: 600, question: "Как называлась главная торговая и общественная площадь в Древних Афинах?", correct: "Агора", options: ["Форум", "Агора", "Акрополь", "Колизей"] },
+          { value: 800, question: "Какой философ, автор труда 'Государство', был учеником Сократа?", correct: "Платон", options: ["Аристотель", "Платон", "Сократ", "Геродот"] },
+          { value: 1000, question: "Как звали философа-киника, который, по легенде, жил в бочке?", correct: "Диоген", options: ["Пифагор", "Диоген", "Эпикур", "Зенон"] }
+        ]
+      },
+      {
+        id: "Древний Восток",
+        questions: [
+          { value: 200, question: "Какая река была основой жизни и процветания Древнего Египта?", correct: "Нил", options: ["Тигр", "Евфрат", "Нил", "Инд"] },
+          { value: 400, question: "В какой древней стране, согласно легенде, находились висячие сады Семирамиды?", correct: "Вавилон", options: ["Египет", "Ассирия", "Вавилон", "Персия"] },
+          { value: 600, question: "Какая система письма, основанная на выдавливании знаков на глине, существовала в Шумере?", correct: "Клинопись", options: ["Иероглифы", "Клинопись", "Алфавит", "Пиктография"] },
+          { value: 800, question: "Кто считается основателем первой в мире империи — Аккадской?", correct: "Саргон Древний", options: ["Хаммурапи", "Саргон Древний", "Навуходоносор II", "Ашшурбанапал"] },
+          { value: 1000, question: "Как называется священный текст зороастризма, древней религии Персии?", correct: "Авеста", options: ["Талмуд", "Авеста", "Веды", "Типитака"] }
+        ]
+      },
+      {
+        id: "Средневековье",
+        questions: [
+          { value: 200, question: "Какой архитектурный стиль, характеризующийся массивными стенами и полукруглыми арками, доминировал в Европе в X-XII веках?", correct: "Романский стиль", options: ["Готика", "Барокко", "Романский стиль", "Ренессанс"] },
+          { value: 400, audio: "media/prokofiev.mp3", question: "Послушайте фрагмент. Какой композитор написал этот знаменитый 'Танец рыцарей'?", correct: "Сергей Прокофьев", options: ["Пётр Чайковский", "Дмитрий Шостакович", "Сергей Прокофьев", "Игорь Стравинский"] },
+          { value: 600, question: "Какое произведение Данте Алигьери описывает путешествие по загробному миру?", correct: "Божественная комедия", options: ["Декамерон", "Божественная комедия", "Песнь о Роланде", "Кентерберийские рассказы"] },
+          { value: 800, question: "Как назывался военно-монашеский орден, основанный в Палестине для защиты паломников?", correct: "Тамплиеры", options: ["Францисканцы", "Тамплиеры", "Доминиканцы", "Госпитальеры"] },
+          { value: 1000, question: "Кто изобрёл книгопечатание в Европе в середине XV века?", correct: "Иоганн Гутенберг", options: ["Леонардо да Винчи", "Иоганн Гутенберг", "Марко Поло", "Роджер Бэкон"] }
+        ]
+      },
+      {
+        id: "Эпоха Возрождения",
+        questions: [
+          { value: 200, question: "Кто является автором знаменитой картины 'Мона Лиза' (Джоконда)?", correct: "Леонардо да Винчи", options: ["Рафаэль", "Микеланджело", "Леонардо да Винчи", "Боттичелли"] },
+          { value: 400, question: "Какой город считается колыбелью итальянского Возрождения?", correct: "Флоренция", options: ["Рим", "Флоренция", "Венеция", "Милан"] },
+          { value: 600, question: "Кто написал политический трактат 'Государь', где цель оправдывает средства?", correct: "Никколо Макиавелли", options: ["Эразм Роттердамский", "Никколо Макиавелли", "Томас Мор", "Петрарка"] },
+          { value: 800, question: "Какой художник и скульптор расписал потолок Сикстинской капеллы в Ватикане?", correct: "Микеланджело", options: ["Леонардо да Винчи", "Микеланджело", "Рафаэль", "Тициан"] },
+          { value: 1000, question: "Какой английский драматург является автором трагедий 'Гамлет' и 'Ромео и Джульетта'?", correct: "Уильям Шекспир", options: ["Кристофер Марло", "Уильям Шекспир", "Бен Джонсон", "Джон Мильтон"] }
+        ]
+      },
+      {
+        id: "Новое время",
+        questions: [
+          { value: 200, question: "В каком веке произошла Великая французская революция?", correct: "XVIII век", options: ["XVII век", "XVIII век", "XIX век", "XVI век"] },
+          { value: 400, question: "Кто написал симфонию №9 с знаменитой 'Одой к радости'?", correct: "Людвиг ван Бетховен", options: ["Моцарт", "Бах", "Людвиг ван Бетховен", "Шуберт"] },
+          { value: 600, image: "https://media.discordapp.net/attachments/1344289233447419926/1427219339567829076/van_gogh.jpg?ex=68ee1117&is=68ecbf97&hm=07a2cf1c7025d30e0952a271960015c8efe9645599e61ad49d222066d75f386e&=&format=webp&width=1010&height=800", question: "Кто является автором этой картины в стиле постимпрессионизма?", correct: "Винсент ван Гог", options: ["Клод Моне", "Поль Гоген", "Винсент ван Гог", "Поль Сезанн"] },
+          { value: 800, question: "Кто создал картину 'Свобода, ведущая народ', посвященную Июльской революции 1830 года?", correct: "Эжен Делакруа", options: ["Франсиско Гойя", "Эжен Делакруа", "Жак-Луи Давид", "Теодор Жерико"] },
+          { value: 1000, question: "Какой философ, автор 'Критики чистого разума', является центральной фигурой в немецкой классической философии?", correct: "Иммануил Кант", options: ["Вольтер", "Иммануил Кант", "Гегель", "Руссо"] }
+        ]
+      },
+      {
+        id: "XX век и современность",
+        questions: [
+          { value: 200, question: "Кто является автором картины 'Чёрный квадрат'?", correct: "Казимир Малевич", options: ["Василий Кандинский", "Казимир Малевич", "Марк Шагал", "Пабло Пикассо"] },
+          { value: 400, question: "Какое направление в искусстве, основанное Пабло Пикассо и Жоржем Браком, изображало объекты в виде комбинации геометрических форм?", correct: "Кубизм", options: ["Кубизм", "Сюрреализм", "Футуризм", "Экспрессионизм"] },
+          { value: 600, question: "Как называется философское течение, ставящее в центр своего внимания уникальность бытия человека, его свободу и ответственность?", correct: "Экзистенциализм", options: ["Позитивизм", "Экзистенциализм", "Прагматизм", "Структурализм"] },
+          { value: 800, question: "Какой испанский художник-сюрреалист известен своими работами 'Постоянство памяти' (с плавящимися часами)?", correct: "Сальвадор Дали", options: ["Хоан Миро", "Пабло Пикассо", "Сальвадор Дали", "Рене Магритт"] },
+          { value: 1000, question: "Какое культурное явление, отрицающее классические каноны и ищущее новые формы, объединяет в себе модернизм, авангард и современные течения?", correct: "Постмодернизм", options: ["Соцреализм", "Постмодернизм", "Метамодернизм", "Неоклассицизм"] }
+        ]
+      }
+    ];
+    const teamAInput = document.getElementById("teamA");
+    const teamBInput = document.getElementById("teamB");
+    const confirmBtn = document.getElementById("confirmBtn");
+    const playBtn = document.getElementById("playBtn");
+    const hint = document.querySelector(".hint");
+    const coinModal = document.getElementById("coinModal");
+    const coin = document.getElementById("coin");
+    const coinResult = document.getElementById("coinResult");
+    const coinOk = document.getElementById("coinOk");
+    const timerDisplay = document.getElementById('timer-display');
+    const STORAGE_KEY = 'svoyaIgraState_culture_v5_local';
+    let timerInterval = null;
+    let totalQuestions = categories.reduce((acc, cat) => acc + cat.questions.length, 0);
+    let gameState = {
+        settings: { lifelinesCount: 3, answerTime: 30, penaltyMode: 'none' },
+        team1: { name: '', score: 0, lifelines: 3 },
+        team2: { name: '', score: 0, lifelines: 3 },
+        currentTurn: null,
+        currentQuestion: null,
+        answeredQuestions: {},
+        gameStarted: false,
+    };
+    function saveGameState() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState)); } 
+      catch (e) { console.error("Не удалось сохранить состояние игры:", e); }
+    }
+    function loadGameState() {
+      try {
+        const savedState = localStorage.getItem(STORAGE_KEY);
+        if (savedState) {
+          gameState = JSON.parse(savedState);
+          if (gameState.gameStarted) {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            updateScoreboard();
+            updateTurnText();
+            buildBoard();
+          } else {
+             teamAInput.value = gameState.team1.name;
+             teamBInput.value = gameState.team2.name;
+             if (teamAInput.value && teamBInput.value) {
+                confirmBtn.click();
+             }
+          }
+        }
+      } catch (e) { console.error("Не удалось загрузить состояние игры:", e); localStorage.removeItem(STORAGE_KEY); }
+    }
+    confirmBtn.addEventListener("click", () => {
+      playClick();
+      const teamA = teamAInput.value.trim();
+      const teamB = teamBInput.value.trim();
+      if (!teamA || !teamB) {
+        hint.textContent = "Пожалуйста, заполните названия обеих команд";
+        hint.style.color = "#ff6b6b";
+        playError();
+        return;
+      }
+      playSuccess();
+      gameState.team1.name = teamA;
+      gameState.team2.name = teamB;
+      hint.style.color = "#4a9eff";
+      hint.textContent = `Команды готовы: "${teamA}" против "${teamB}"`;
+      confirmBtn.classList.add("hidden");
+      playBtn.classList.remove("hidden");
+      teamAInput.disabled = true;
+      teamBInput.disabled = true;
+      saveGameState();
+    });
+    playBtn.addEventListener("click", () => {
+      playClick();
+      coinModal.classList.remove("hidden");
+      coinResult.textContent = "";
+      coinOk.classList.add("hidden");
+      coin.style.transform = 'rotateY(0deg)';
+      setTimeout(() => {
+        const isHeads = Math.random() > 0.5;
+        const rotations = 6 + Math.floor(Math.random() * 2);
+        const rotation = (rotations * 360) + (isHeads ? 0 : 180);
+        coin.style.transform = `rotateY(${rotation}deg)`;
+        playSound(440, 2.5, 'sawtooth');
+        setTimeout(() => {
+          playSuccess();
+          gameState.currentTurn = isHeads ? 'team1' : 'team2';
+          const winnerName = isHeads ? gameState.team1.name : gameState.team2.name;
+          coinResult.textContent = isHeads 
+            ? `Выпал ОРЕЛ — начинает команда "${winnerName}"` 
+            : `Выпала РЕШКА — начинает команда "${winnerName}"`;
+          coinOk.classList.remove("hidden");
+          saveGameState();
+        }, 2600);
+      }, 400);
+    });
+    coinOk.addEventListener("click", () => {
+      playClick();
+      coinModal.classList.add("hidden");
+      const overlay = document.createElement("div");
+      overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;z-index:9999;font-size:10rem;color:var(--primary-glow);font-weight:900;";
+      document.body.appendChild(overlay);
+      let num = 3;
+      const countdown = () => {
+        if (num > 0) {
+          overlay.textContent = num;
+          playClick();
+          num--;
+          setTimeout(countdown, 1000);
+        } else {
+          overlay.textContent = "СТАРТ!";
+          playSuccess();
+          setTimeout(() => {
+            overlay.remove();
+            startGame();
+          }, 800);
+        }
+      };
+      countdown();
+    });
+    function showSettings() {
+      playClick();
+      document.getElementById('lifelines-count').value = gameState.settings.lifelinesCount === Infinity ? 'unlimited' : gameState.settings.lifelinesCount;
+      document.getElementById('answer-time').value = gameState.settings.answerTime;
+      document.getElementById('penalty-mode').value = gameState.settings.penaltyMode;
+      document.getElementById('settingsModal').classList.remove('hidden');
+    }
+    function closeSettings() { playClick(); document.getElementById('settingsModal').classList.add('hidden'); }
+    function saveSettings() {
+      playClick();
+      const lifelinesCount = document.getElementById('lifelines-count').value;
+      gameState.settings.lifelinesCount = lifelinesCount === 'unlimited' ? Infinity : parseInt(lifelinesCount);
+      gameState.settings.answerTime = document.getElementById('answer-time').value;
+      gameState.settings.penaltyMode = document.getElementById('penalty-mode').value;
+      if (!gameState.gameStarted) {
+        gameState.team1.lifelines = gameState.settings.lifelinesCount;
+        gameState.team2.lifelines = gameState.settings.lifelinesCount;
+      }
+      updateScoreboard();
+      closeSettings();
+      saveGameState();
+      playSuccess();
+    }
+    function startGame() {
+      gameState.gameStarted = true;
+      gameState.team1.lifelines = gameState.settings.lifelinesCount;
+      gameState.team2.lifelines = gameState.settings.lifelinesCount;
+      document.getElementById('start-screen').classList.add('hidden');
+      document.getElementById('game-screen').classList.remove('hidden');
+      updateScoreboard();
+      updateTurnText();
+      buildBoard();
+      saveGameState();
+    }
+    function updateTurnText() {
+        const currentTeamName = gameState.currentTurn === 'team1' ? gameState.team1.name : gameState.team2.name;
+        document.getElementById("turn-indicator").textContent = "Сейчас ходит: " + currentTeamName;
+    }
+    function updateScoreboard() {
+        document.getElementById("team1-name").textContent = gameState.team1.name;
+        document.getElementById("team1-score").textContent = gameState.team1.score;
+        document.getElementById("team1-lifelines").textContent = gameState.team1.lifelines === Infinity ? '∞' : gameState.team1.lifelines;
+        document.getElementById("team2-name").textContent = gameState.team2.name;
+        document.getElementById("team2-score").textContent = gameState.team2.score;
+        document.getElementById("team2-lifelines").textContent = gameState.team2.lifelines === Infinity ? '∞' : gameState.team2.lifelines;
+    }
+    function adjustScore(teamId, amount) {
+        playClick();
+        gameState[teamId].score += amount;
+        if (gameState[teamId].score < 0) {
+            gameState[teamId].score = 0;
+        }
+        updateScoreboard();
+        saveGameState();
+    }
+    function buildBoard() {
+      const board = document.getElementById('board');
+      board.innerHTML = "";
+      categories.forEach(cat => {
+        const row = document.createElement("div");
+        row.style.cssText = "display:grid;grid-template-columns:1.5fr repeat(5,1fr);gap:8px;align-items:center;";
+        const title = document.createElement("div");
+        title.className = "category-title";
+        title.textContent = cat.id;
+        row.appendChild(title);
+        cat.questions.forEach(q => {
+          const btn = document.createElement("div");
+          btn.className = "value-btn";
+          btn.textContent = q.value;
+          const key = cat.id + q.value;
+          btn.dataset.key = key;
+          if(gameState.answeredQuestions[key]) {
+             btn.classList.add('used');
+          } else {
+             btn.onclick = () => onValueClick(key, q);
+          }
+          row.appendChild(btn);
+        });
+        board.appendChild(row);
+      });
+    }
+
+    // --- ИЗМЕНЕННАЯ ФУНКЦИЯ ---
+    function onValueClick(key, questionData) {
+      playClick();
+      gameState.currentQuestion = { key, ...questionData };
+      const mediaContainer = document.getElementById('media-container');
+      mediaContainer.innerHTML = ''; // Очищаем контейнер
+
+      // Обработка изображения (остается без изменений)
+      if (questionData.image) {
+          const img = document.createElement('img');
+          img.src = questionData.image;
+          mediaContainer.appendChild(img);
+      }
+
+      // Проверяем, есть ли у вопроса аудио
+      if (questionData.audio) {
+          console.log("Вопрос содержит аудио:", questionData.audio); // Добавим лог для отладки
+
+          const audio = document.createElement('audio');
+          audio.controls = true; // Показываем элементы управления плеером
+          audio.src = questionData.audio; // Устанавливаем путь из данных вопроса
+
+          // Добавим обработчик ошибок, чтобы точно знать, что не так
+          audio.addEventListener('error', function(e) {
+              console.error("ОШИБКА ЗАГРУЗКИ АУДИО!");
+              console.error("Браузер не смог загрузить файл по пути:", audio.src);
+              console.error("Убедитесь, что вы запускаете проект через Live Server (не двойным кликом по файлу). В адресной строке не должно быть 'file:///'.");
+              console.error("Также проверьте, что папка 'media' и файл 'prokofiev.mp3' существуют и написаны без ошибок.");
+          });
+          
+          audio.autoplay = true; // Попробуем запустить воспроизведение автоматически
+          mediaContainer.appendChild(audio);
+      }
+
+      document.getElementById('question').textContent = questionData.question;
+      const optionsEl = document.getElementById('options');
+      optionsEl.innerHTML = "";
+      const shuffledOptions = shuffleArray(questionData.options);
+      shuffledOptions.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = opt;
+        btn.onclick = () => checkAnswer(opt);
+        optionsEl.appendChild(btn);
+      });
+      document.getElementById('score').textContent = "";
+      const currentTeamLifelines = gameState.currentTurn === 'team1' ? gameState.team1.lifelines : gameState.team2.lifelines;
+      const fiftyBtn = document.getElementById('fifty-fifty-btn');
+      fiftyBtn.style.display = currentTeamLifelines > 0 ? 'inline-block' : 'none';
+      fiftyBtn.disabled = false;
+      document.getElementById('question-box').style.display = "flex";
+      startTimer();
+    }
+    // --- КОНЕЦ ИЗМЕНЕННОЙ ФУНКЦИИ ---
+
+    function startTimer() {
+        clearInterval(timerInterval);
+        timerDisplay.classList.remove('low-time');
+        if (gameState.settings.answerTime === 'unlimited') {
+            timerDisplay.textContent = '∞';
+            return;
+        }
+        let timeLeft = parseInt(gameState.settings.answerTime);
+        timerDisplay.textContent = timeLeft;
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerDisplay.textContent = timeLeft;
+            if (timeLeft <= 5 && timeLeft > 0) {
+                timerDisplay.classList.add('low-time');
+                playSound(800, 0.1, 'square');
+            }
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                playError();
+                checkAnswer(null, true);
+            }
+        }, 1000);
+    }
+    document.getElementById('fifty-fifty-btn').addEventListener('click', () => {
+      playClick();
+      const currentTeam = gameState[gameState.currentTurn];
+      if (currentTeam.lifelines <= 0) return;
+      if (currentTeam.lifelines !== Infinity) currentTeam.lifelines--;
+      updateScoreboard();
+      const correct = gameState.currentQuestion.correct;
+      const allOptions = Array.from(document.getElementById('options').children);
+      const incorrectOptions = allOptions.filter(btn => btn.textContent !== correct);
+      shuffleArray(incorrectOptions).slice(0, 2).forEach(btn => btn.classList.add('fifty-fifty-hidden'));
+      document.getElementById('fifty-fifty-btn').disabled = true;
+      saveGameState();
+      playSuccess();
+    });
+    function checkAnswer(selected, isTimeout = false) {
+      clearInterval(timerInterval);
+      const { correct, value, key } = gameState.currentQuestion;
+      const optionsEl = document.getElementById('options');
+      Array.from(optionsEl.children).forEach(btn => {
+        btn.disabled = true;
+        if (btn.textContent === correct) btn.style.background = 'rgba(0, 180, 0, 0.6)';
+        else if (btn.textContent === selected) btn.style.background = 'rgba(180, 0, 0, 0.6)';
+      });
+      let penalty = 0;
+      if (selected === correct) {
+        playSuccess();
+        document.getElementById('score').textContent = `✅ Верно! +${value}`;
+        gameState[gameState.currentTurn].score += value;
+      } else {
+        playError();
+        let resultText = isTimeout ? `⏰ Время вышло!` : `❌ Неверно!`;
+        if (gameState.settings.penaltyMode === 'half') penalty = Math.floor(value / 2);
+        else if (gameState.settings.penaltyMode === 'full') penalty = value;
+        if (penalty > 0) {
+          resultText += ` Штраф: -${penalty}`;
+          const team = gameState[gameState.currentTurn];
+          team.score = Math.max(0, team.score - penalty);
+        }
+        document.getElementById('score').textContent = resultText;
+      }
+      updateScoreboard();
+      gameState.answeredQuestions[key] = true;
+      document.querySelector(`[data-key='${key}']`).classList.add('used');
+      setTimeout(() => {
+        document.getElementById('question-box').style.display = "none";
+        document.getElementById('media-container').innerHTML = '';
+        if (Object.keys(gameState.answeredQuestions).length >= totalQuestions) {
+          showWinner();
+        } else {
+          gameState.currentTurn = gameState.currentTurn === 'team1' ? 'team2' : 'team1';
+          updateTurnText();
+        }
+        saveGameState();
+      }, 3000);
+    }
+    function showWinner() {
+      let winnerText;
+      if (gameState.team1.score > gameState.team2.score) {
+        winnerText = `🏆 Победила команда "${gameState.team1.name}"!`;
+      } else if (gameState.team2.score > gameState.team1.score) {
+        winnerText = `🏆 Победила команда "${gameState.team2.name}"!`;
+      } else {
+        winnerText = "🤝 Ничья!";
+      }
+      const finalResult = document.getElementById('final-result');
+      finalResult.innerHTML = `${winnerText}<br><br>Итоговый счёт: ${gameState.team1.score} : ${gameState.team2.score}<br><br><button class="small-btn" onclick="resetGame()">Новая игра</button>`;
+      finalResult.style.display = "flex";
+      triggerConfetti();
+      playSuccess();
+    }
+    function resetGame() {
+      playClick();
+      try { localStorage.removeItem(STORAGE_KEY); } 
+      catch (e) { console.error("Не удалось очистить состояние игры:", e); }
+      location.reload();
+    }
+    window.addEventListener('DOMContentLoaded', loadGameState);
+  </script>
+</body>
+</html>
