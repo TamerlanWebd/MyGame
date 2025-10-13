@@ -464,6 +464,154 @@
         0% { transform: translateY(0vh) rotate(0deg); opacity: 1; }
         100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
     }
+
+
+    /* ==================================== */
+    /* === АДАПТИВНОСТЬ ДЛЯ ТЕЛЕФОНОВ === */
+    /* ==================================== */
+
+    @media (max-width: 768px) {
+        body {
+            padding: 10px;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            letter-spacing: 6px;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+        }
+
+        .settings-btn {
+            top: 10px;
+            right: 10px;
+            padding: 0.6em 1em;
+        }
+        
+        .teams {
+            grid-template-columns: 1fr; /* Команды всегда в одну колонку */
+            gap: 1.5em;
+        }
+
+        /* --- Экран игры --- */
+
+        header {
+            flex-direction: column; /* Ставим элементы в колонку */
+            gap: 1em;
+            margin-bottom: 1em;
+        }
+
+        header h1 {
+            font-size: 1.8rem; /* Уменьшаем заголовок */
+            letter-spacing: 4px;
+            order: -1; /* Поставим заголовок "СВОЯ ИГРА" наверх */
+        }
+
+        .team {
+            width: 100%;
+            max-width: 320px;
+            margin: 0 auto;
+        }
+
+        /* --- Самое важное: перестройка игровой доски --- */
+
+        #board {
+            gap: 15px;
+        }
+        
+        /* Переопределяем стили, которые JS добавляет напрямую к элементу. */
+        /* `!important` нужен, чтобы перебить `style="..."` */
+        #board > div {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important; /* Две кнопки в ряд */
+            gap: 8px !important;
+        }
+
+        .category-title {
+            grid-column: 1 / -1 !important; /* Растягиваем на всю ширину */
+            margin-bottom: 5px;
+            font-size: 1rem;
+            padding: 10px;
+        }
+        
+        .value-btn {
+            font-size: 1rem;
+            padding: 0.9em;
+        }
+
+        /* --- Окно вопроса --- */
+
+        #question-box {
+            padding: 15px;
+        }
+        
+        #timer-display {
+            font-size: 2.5rem;
+            top: 15px;
+        }
+
+        #question {
+            font-size: 1.3rem; /* Уменьшаем текст вопроса */
+            max-width: 100%;
+            padding: 0;
+        }
+
+        .options {
+            width: 100%; /* На всю ширину */
+            gap: 10px;
+        }
+        
+        .option-btn {
+            font-size: 0.9rem;
+        }
+
+        /* --- Модальные окна --- */
+
+        .modal-content {
+            width: 95%; /* Занимает почти всю ширину экрана */
+            min-width: 0; /* Убираем минимальную ширину */
+            padding: 1.5em;
+            max-height: 85vh;
+        }
+
+        .modal-content h2 {
+            font-size: 1.5rem;
+        }
+        
+        #final-result {
+            font-size: 1.5rem;
+            padding: 15px;
+        }
+    }
+    
+    /* Дополнительные правки для очень маленьких экранов */
+    @media (max-width: 420px) {
+        .title {
+            font-size: 2rem;
+            letter-spacing: 4px;
+        }
+        
+        .big-btn {
+            padding: 0.8em 1.5em;
+            font-size: 1rem;
+            width: 100%;
+            max-width: 280px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* Кнопки ответов в одну колонку для удобства нажатия */
+        .options {
+            grid-template-columns: 1fr;
+        }
+
+        #question {
+            font-size: 1.2rem;
+        }
+    }
+
   </style>
 </head>
 <body>
@@ -577,6 +725,8 @@
 
   <script>
     // Весь JavaScript остается таким же, как в коде выше
+    // ... (весь ваш JS код без изменений до функции onValueClick)
+
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     function playSound(frequency, duration, type = 'sine') {
       try {
@@ -869,6 +1019,7 @@
       board.innerHTML = "";
       categories.forEach(cat => {
         const row = document.createElement("div");
+        // Эта строка отвечает за грид на десктопе. На мобильных она переопределяется через CSS
         row.style.cssText = "display:grid;grid-template-columns:1.5fr repeat(5,1fr);gap:8px;align-items:center;";
         const title = document.createElement("div");
         title.className = "category-title";
@@ -891,37 +1042,34 @@
       });
     }
 
-    // --- ИЗМЕНЕННАЯ ФУНКЦИЯ ---
+    // --- УЛУЧШЕННАЯ ФУНКЦИЯ ДЛЯ ОБРАБОТКИ МЕДИА ---
     function onValueClick(key, questionData) {
       playClick();
       gameState.currentQuestion = { key, ...questionData };
       const mediaContainer = document.getElementById('media-container');
       mediaContainer.innerHTML = ''; // Очищаем контейнер
 
-      // Обработка изображения (остается без изменений)
       if (questionData.image) {
           const img = document.createElement('img');
           img.src = questionData.image;
           mediaContainer.appendChild(img);
       }
 
-      // Проверяем, есть ли у вопроса аудио
       if (questionData.audio) {
-          console.log("Вопрос содержит аудио:", questionData.audio); // Добавим лог для отладки
-
+          console.log("Вопрос содержит аудио:", questionData.audio);
           const audio = document.createElement('audio');
-          audio.controls = true; // Показываем элементы управления плеером
-          audio.src = questionData.audio; // Устанавливаем путь из данных вопроса
+          audio.controls = true;
+          audio.src = questionData.audio;
 
-          // Добавим обработчик ошибок, чтобы точно знать, что не так
+          // Добавлен обработчик ошибок для отладки
           audio.addEventListener('error', function(e) {
               console.error("ОШИБКА ЗАГРУЗКИ АУДИО!");
               console.error("Браузер не смог загрузить файл по пути:", audio.src);
-              console.error("Убедитесь, что вы запускаете проект через Live Server (не двойным кликом по файлу). В адресной строке не должно быть 'file:///'.");
+              console.error("Убедитесь, что вы запускаете проект через Live Server, а не двойным кликом по файлу. В адресной строке не должно быть 'file:///'.");
               console.error("Также проверьте, что папка 'media' и файл 'prokofiev.mp3' существуют и написаны без ошибок.");
           });
           
-          audio.autoplay = true; // Попробуем запустить воспроизведение автоматически
+          audio.autoplay = true;
           mediaContainer.appendChild(audio);
       }
 
@@ -944,7 +1092,8 @@
       document.getElementById('question-box').style.display = "flex";
       startTimer();
     }
-    // --- КОНЕЦ ИЗМЕНЕННОЙ ФУНКЦИИ ---
+    
+    // ... (весь остальной JS код без изменений)
 
     function startTimer() {
         clearInterval(timerInterval);
